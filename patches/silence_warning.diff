@@ -1,0 +1,12 @@
+diff -upNr desktop-3.3.6.orig/src/common/pinstate.h desktop-3.3.6.patched/src/common/pinstate.h
+--- desktop-3.3.6.orig/src/common/pinstate.h	2021-10-28 11:25:40.000000000 +0200
++++ desktop-3.3.6.patched/src/common/pinstate.h	2021-12-17 14:12:14.210030782 +0100
+@@ -77,7 +77,7 @@ enum class PinState {
+      */
+     Unspecified = 3,
+ };
+-Q_ENUM_NS(PinState);
++Q_ENUM_NS(PinState)
+ 
+ /** A user-facing version of PinState.
+  *

@@ -1,0 +1,12 @@
+diff -upNr desktop-3.3.6.orig/src/gui/CMakeLists.txt desktop-3.3.6.patched/src/gui/CMakeLists.txt
+--- desktop-3.3.6.orig/src/gui/CMakeLists.txt	2021-10-28 11:25:40.000000000 +0200
++++ desktop-3.3.6.patched/src/gui/CMakeLists.txt	2021-12-17 12:33:41.631656983 +0100
+@@ -258,7 +258,7 @@ function(generate_sized_png_from_svg ico
+   set(icon_output_name "${size}-${icon_name_wle}.png")
+   message(STATUS "Generate ${icon_output_name}")
+   execute_process(COMMAND
+-    "${INKSCAPE}" -w ${size} -h ${size} "${icon_path}" -o "${icon_output_name}"
++    "${INKSCAPE}" -z -w ${size} -h ${size} -f "${icon_path}" -e "${icon_output_name}"
+     WORKING_DIRECTORY "${icon_name_dir}"
+     RESULT_VARIABLE
+     INKSCAPE_SIDEBAR_ERROR
