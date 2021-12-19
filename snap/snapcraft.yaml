@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.3.6'
+version: '3.4.1'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -59,6 +59,7 @@ apps:
       - bin/gtk3-env-launch
     command: usr/bin/nextcloud
     environment:
+      NO_AT_BRIDGE: 1
       DISABLE_WAYLAND: 1
       QT_QPA_PLATFORMTHEME: gtk3
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
@@ -82,10 +83,10 @@ build-packages:
   - build-essential
   - cmake
   - dpkg-dev
-  - inkscape
   - libcloudproviders-dev
   - libqt5svg5-dev
   - libqt5websockets5-dev
+  - librsvg2-bin
   - libsqlite3-dev
   - libssl-dev
   - pkg-config
@@ -109,7 +110,6 @@ layout:
   /usr/share/nextcloud:
     bind: $SNAP/usr/share/nextcloud
 
-
 parts:
   launchers: # custom launcher to set QT_QPA_PLATFORMTHEME=gtk3 correctly
     source: local/launchers
@@ -123,6 +123,18 @@ parts:
     plugin: dump
     source: patches
     prime: [-*]
+
+  qt5:
+    plugin: nil
+    prime: [-*]
+    override-build: |
+      echo "deb http://archive.neon.kde.org/user focal main" | tee /etc/apt/sources.list.d/kde-neon.list
+      wget -O - https://archive.neon.kde.org/public.key | apt-key add -
+      apt update
+      apt install -yy libqt5svg5-dev libqt5websockets5-dev qt5keychain-dev qtbase5-dev qtbase5-private-dev \
+      qtquickcontrols2-5-dev qttools5-dev qtwebengine5-dev
+    build-packages:
+      - wget
 
 
   desktop-qt5:
@@ -146,6 +158,8 @@ parts:
       - ttf-ubuntu-font-family
       - xdg-user-dirs
       - qt5-gtk-platformtheme
+    after:
+      - qt5
   
 
   nextcloud-desktop-client:
@@ -156,7 +170,7 @@ parts:
       - -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}/usr"
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
-    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.3.6.tar.gz
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.4.1.tar.gz
     override-pull: |
       snapcraftctl pull
       for commit in `ls ${SNAPCRAFT_PROJECT_DIR}/patches`; do patch -p1 < ${SNAPCRAFT_PROJECT_DIR}/patches/$commit; done
@@ -181,4 +195,5 @@ parts:
       - qml-module-qtquick-layouts
       - qtwayland5
     after:
+      - desktop-qt5
       - patches

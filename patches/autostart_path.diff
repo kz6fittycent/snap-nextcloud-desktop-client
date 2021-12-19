@@ -1,7 +1,7 @@
-diff -upNr desktop-3.3.6.orig/src/common/utility_unix.cpp desktop-3.3.6.patched/src/common/utility_unix.cpp
---- desktop-3.3.6.orig/src/common/utility_unix.cpp	2021-10-28 11:25:40.000000000 +0200
-+++ desktop-3.3.6.patched/src/common/utility_unix.cpp	2021-12-17 18:31:12.957150529 +0100
-@@ -72,18 +72,13 @@ void setLaunchOnStartup_private(const QS
+diff -upNr desktop-3.4.1.orig/src/common/utility_unix.cpp desktop-3.4.1.patched/src/common/utility_unix.cpp
+--- desktop-3.4.1.orig/src/common/utility_unix.cpp	2021-12-17 16:52:51.000000000 +0100
++++ desktop-3.4.1.patched/src/common/utility_unix.cpp	2021-12-18 16:30:58.603343844 +0100
+@@ -77,20 +77,15 @@ void setLaunchOnStartup_private(const QS
              qCWarning(lcUtility) << "Could not write auto start entry" << desktopFileLocation;
              return;
          }
@@ -13,11 +13,14 @@ diff -upNr desktop-3.3.6.orig/src/common/utility_unix.cpp desktop-3.3.6.patched/
  
          QTextStream ts(&iniFile);
          ts.setCodec("UTF-8");
-         ts << QLatin1String("[Desktop Entry]") << endl
-            << QLatin1String("Name=") << guiName << endl
-            << QLatin1String("GenericName=") << QLatin1String("File Synchronizer") << endl
--           << QLatin1String("Exec=\"") << executablePath << "\" --background" << endl
-+           << QLatin1String("Exec=\"/snap/nextcloud-desktop-client/current/usr/bin/nextcloud\" --background") << endl
-            << QLatin1String("Terminal=") << "false" << endl
-            << QLatin1String("Icon=") << APPLICATION_ICON_NAME << endl
-            << QLatin1String("Categories=") << QLatin1String("Network") << endl
+         ts << QLatin1String("[Desktop Entry]\n")
+            << QLatin1String("Name=") << guiName << QLatin1Char('\n')
+            << QLatin1String("GenericName=") << QLatin1String("File Synchronizer\n")
+-           << QLatin1String("Exec=\"") << executablePath << "\" --background\n"
++           << QLatin1String("Exec=\"/snap/nextcloud-desktop-client/current/usr/bin/nextcloud\" --background\n")
+            << QLatin1String("Terminal=") << "false\n"
+-           << QLatin1String("Icon=") << APPLICATION_ICON_NAME << QLatin1Char('\n')
++           << QLatin1String("Icon=/snap/nextcloud-desktop-client/current/meta/gui/icon.svg\n")
+            << QLatin1String("Categories=") << QLatin1String("Network\n")
+            << QLatin1String("Type=") << QLatin1String("Application\n")
+            << QLatin1String("StartupNotify=") << "false\n"
