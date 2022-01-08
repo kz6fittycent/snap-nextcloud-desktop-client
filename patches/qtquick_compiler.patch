@@ -1,0 +1,251 @@
+From e25140d72e4c2122773efc2548978b6fdaf7cea7 Mon Sep 17 00:00:00 2001
+From: Claudio Cambra <claudio.cambra@gmail.com>
+Date: Wed, 29 Dec 2021 17:44:40 +0100
+Subject: [PATCH 1/5] Add option of enabling QtQuick compiler
+
+Signed-off-by: Claudio Cambra <claudio.cambra@gmail.com>
+---
+ CMakeLists.txt         |  8 ++++++++
+ src/gui/CMakeLists.txt | 34 +++++++++++++++-------------------
+ 2 files changed, 23 insertions(+), 19 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 930e5a9e79..26371b6d87 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -1,5 +1,6 @@
+ cmake_minimum_required(VERSION 3.6)
+ set(CMAKE_CXX_STANDARD 14)
++cmake_policy(SET CMP0071 NEW) # Enable use of QtQuick compiler/generated code
+ 
+ project(client)
+ 
+@@ -82,6 +83,10 @@ add_definitions(
+     -DQT_MESSAGELOGCONTEXT #enable function name and line number in debug output
+ )
+ 
++if(QUICK_COMPILER)
++    add_definitions(-DQUICK_COMPILER) # Enable use of QtQuick compiler
++endif()
++
+ # if we cannot get it from git, directly try .tag (packages)
+ # this will work if the tar balls have been properly created
+ # via git-archive.
+@@ -106,6 +111,9 @@ if(APPLE AND BUILD_OWNCLOUD_OSX_BUNDLE)
+     set(BIN_INSTALL_DIR "${APPLICATION_NAME}.app/Contents/MacOS")
+ endif()
+ 
++
++option(QUICK_COMPILER "Use QtQuick compiler to improve performance" OFF)
++
+ # this option removes Http authentication, keychain, shibboleth etc and is intended for
+ # external authentication mechanisms
+ option(TOKEN_AUTH_ONLY "TOKEN_AUTH_ONLY" OFF)
+diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+index 85df84dbc7..7593a2384c 100644
+--- a/src/gui/CMakeLists.txt
++++ b/src/gui/CMakeLists.txt
+@@ -1,5 +1,14 @@
+ project(gui)
+ find_package(Qt5 REQUIRED COMPONENTS Widgets Svg Qml Quick QuickControls2 Xml Network)
++
++if(QUICK_COMPILER)
++        find_package(Qt5QuickCompiler)
++        set_package_properties(Qt5QuickCompiler PROPERTIES
++                DESCRIPTION "Compile QML at build time"
++                TYPE OPTIONAL
++        )
++endif()
++
+ if (NOT TARGET Qt5::GuiPrivate)
+     message(FATAL_ERROR "Could not find GuiPrivate component of Qt5. It might be shipped as a separate package, please check that.")
+ endif()
+@@ -13,9 +22,6 @@ IF(BUILD_UPDATER)
+ endif()
+ 
+ configure_file(${CMAKE_SOURCE_DIR}/theme.qrc.in ${CMAKE_SOURCE_DIR}/theme.qrc)
+-
+-set(MIRALL_RC_SRC ../../resources.qrc)
+-list(APPEND MIRALL_RC_SRC ${CMAKE_SOURCE_DIR}/theme.qrc)
+ set(theme_dir ${CMAKE_SOURCE_DIR}/theme)
+ 
+ set(client_UI_SRCS
+@@ -39,21 +45,6 @@ set(client_UI_SRCS
+     addcertificatedialog.ui
+     proxyauthdialog.ui
+     mnemonicdialog.ui
+-    UserStatusSelector.qml
+-    UserStatusSelectorDialog.qml
+-    tray/ActivityActionButton.qml
+-    tray/ActivityItem.qml
+-    tray/ActivityList.qml
+-    tray/Window.qml
+-    tray/UserLine.qml
+-    tray/UnifiedSearchInputContainer.qml
+-    tray/UnifiedSearchResultFetchMoreTrigger.qml
+-    tray/UnifiedSearchResultItem.qml
+-    tray/UnifiedSearchResultItemSkeleton.qml
+-    tray/UnifiedSearchResultItemSkeletonContainer.qml
+-    tray/UnifiedSearchResultListItem.qml
+-    tray/UnifiedSearchResultNothingFound.qml
+-    tray/UnifiedSearchResultSectionItem.qml
+     wizard/flow2authwidget.ui
+     wizard/owncloudadvancedsetuppage.ui
+     wizard/owncloudconnectionmethoddialog.ui
+@@ -64,6 +55,12 @@ set(client_UI_SRCS
+     wizard/welcomepage.ui
+ )
+ 
++if(QUICK_COMPILER)
++    qtquick_compiler_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
++else()
++     qt_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
++endif()
++
+ set(client_SRCS
+     accountmanager.cpp
+     accountsettings.cpp
+@@ -232,7 +229,6 @@ IF( WIN32 )
+ ENDIF()
+ 
+ set( final_src
+-    ${MIRALL_RC_SRC}
+     ${client_SRCS}
+     ${client_UI_SRCS}
+     ${guiMoc}
+
+From 8ad04f5a5ede1f6a3e6f8b08ac506c24a215b48e Mon Sep 17 00:00:00 2001
+From: Claudio Cambra <claudio.cambra@gmail.com>
+Date: Thu, 30 Dec 2021 12:22:33 +0100
+Subject: [PATCH 2/5] Remove AUTORCC
+
+Signed-off-by: Claudio Cambra <claudio.cambra@gmail.com>
+---
+ src/gui/CMakeLists.txt | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+index 7593a2384c..8651be0764 100644
+--- a/src/gui/CMakeLists.txt
++++ b/src/gui/CMakeLists.txt
+@@ -447,7 +447,6 @@ endif()
+ set_target_properties(nextcloudCore
+   PROPERTIES
+   AUTOUIC ON
+-  AUTORCC ON
+   AUTOMOC ON
+ )
+ 
+
+From a1d42b4177846f6540ca72ae7c699f245515baf7 Mon Sep 17 00:00:00 2001
+From: Claudio Cambra <claudio.cambra@gmail.com>
+Date: Wed, 5 Jan 2022 12:42:47 +0100
+Subject: [PATCH 3/5] Make compiler required when option is on, removed unused
+ def
+
+Signed-off-by: Claudio Cambra <claudio.cambra@gmail.com>
+---
+ CMakeLists.txt         | 4 ----
+ src/gui/CMakeLists.txt | 2 +-
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 26371b6d87..e6e16b7e14 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -83,10 +83,6 @@ add_definitions(
+     -DQT_MESSAGELOGCONTEXT #enable function name and line number in debug output
+ )
+ 
+-if(QUICK_COMPILER)
+-    add_definitions(-DQUICK_COMPILER) # Enable use of QtQuick compiler
+-endif()
+-
+ # if we cannot get it from git, directly try .tag (packages)
+ # this will work if the tar balls have been properly created
+ # via git-archive.
+diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+index 8651be0764..3a63eae550 100644
+--- a/src/gui/CMakeLists.txt
++++ b/src/gui/CMakeLists.txt
+@@ -5,7 +5,7 @@ if(QUICK_COMPILER)
+         find_package(Qt5QuickCompiler)
+         set_package_properties(Qt5QuickCompiler PROPERTIES
+                 DESCRIPTION "Compile QML at build time"
+-                TYPE OPTIONAL
++                TYPE REQUIRED
+         )
+ endif()
+ 
+
+From 044cf7ee13ef7614cd8bcb208552c134cbedef7b Mon Sep 17 00:00:00 2001
+From: Claudio Cambra <claudio.cambra@gmail.com>
+Date: Fri, 7 Jan 2022 11:58:05 +0100
+Subject: [PATCH 4/5] Add QUICK_COMPILER option to drone builds, set quick
+ compiler on by default
+
+Signed-off-by: Claudio Cambra <claudio.cambra@gmail.com>
+---
+ .drone.yml     | 4 ++--
+ CMakeLists.txt | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/.drone.yml b/.drone.yml
+index 6e2eefe602..1ffef5c66e 100644
+--- a/.drone.yml
++++ b/.drone.yml
+@@ -9,7 +9,7 @@ steps:
+       path: /drone/build
+   commands:
+     - cd /drone/build
+-    - cmake -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_BUILD_TYPE=Debug -DBUILD_UPDATER=ON -DBUILD_TESTING=1 -DECM_ENABLE_SANITIZERS=address -DCMAKE_CXX_FLAGS=-Werror ../src
++    - cmake -DCMAKE_C_COMPILER=gcc-10 -DCMAKE_CXX_COMPILER=g++-10 -DCMAKE_BUILD_TYPE=Debug -DQUICK_COMPILER=ON -DBUILD_UPDATER=ON -DBUILD_TESTING=1 -DECM_ENABLE_SANITIZERS=address -DCMAKE_CXX_FLAGS=-Werror ../src
+ - name: compile
+   image: ghcr.io/nextcloud/continuous-integration-client:client-5.15-4
+   volumes:
+@@ -53,7 +53,7 @@ steps:
+       path: /drone/build
+   commands:
+     - cd /drone/build
+-    - cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=clang-10 -DCMAKE_CXX_COMPILER=clang++-10 -DCMAKE_BUILD_TYPE=Debug -DBUILD_UPDATER=ON -DBUILD_TESTING=1 -DECM_ENABLE_SANITIZERS=address -DCMAKE_CXX_FLAGS=-Werror ../src
++    - cmake -GNinja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_C_COMPILER=clang-10 -DCMAKE_CXX_COMPILER=clang++-10 -DCMAKE_BUILD_TYPE=Debug -DQUICK_COMPILER=ON -DBUILD_UPDATER=ON -DBUILD_TESTING=1 -DECM_ENABLE_SANITIZERS=address -DCMAKE_CXX_FLAGS=-Werror ../src
+ - name: compile
+   image: ghcr.io/nextcloud/continuous-integration-client:client-5.15-4
+   volumes:
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e6e16b7e14..75ad766a2d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -108,7 +108,7 @@ if(APPLE AND BUILD_OWNCLOUD_OSX_BUNDLE)
+ endif()
+ 
+ 
+-option(QUICK_COMPILER "Use QtQuick compiler to improve performance" OFF)
++option(QUICK_COMPILER "Use QtQuick compiler to improve performance" ON)
+ 
+ # this option removes Http authentication, keychain, shibboleth etc and is intended for
+ # external authentication mechanisms
+
+From f23c7007a50c82c8218df56069af23fc8e15106e Mon Sep 17 00:00:00 2001
+From: Claudio Cambra <claudio.cambra@gmail.com>
+Date: Fri, 7 Jan 2022 12:00:02 +0100
+Subject: [PATCH 5/5] Fix space
+
+Signed-off-by: Claudio Cambra <claudio.cambra@gmail.com>
+---
+ src/gui/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/gui/CMakeLists.txt b/src/gui/CMakeLists.txt
+index 3a63eae550..d2d05fe94a 100644
+--- a/src/gui/CMakeLists.txt
++++ b/src/gui/CMakeLists.txt
+@@ -58,7 +58,7 @@ set(client_UI_SRCS
+ if(QUICK_COMPILER)
+     qtquick_compiler_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
+ else()
+-     qt_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
++    qt_add_resources(client_UI_SRCS ../../resources.qrc ${CMAKE_SOURCE_DIR}/theme.qrc)
+ endif()
+ 
+ set(client_SRCS
