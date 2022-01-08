@@ -119,10 +119,10 @@ parts:
     stage:
       - -bin/README.*
 
-  patches:
-    plugin: dump
-    source: patches
-    prime: [-*]
+  #patches:
+  #  plugin: dump
+  #  source: patches
+  #  prime: [-*]
 
   qt5:
     plugin: nil
@@ -171,10 +171,12 @@ parts:
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
       - -DQUICK_COMPILER=ON
-    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.4.1.tar.gz
-    override-pull: |
-      snapcraftctl pull
-      for commit in `ls ${SNAPCRAFT_PROJECT_DIR}/patches`; do patch -p1 < ${SNAPCRAFT_PROJECT_DIR}/patches/$commit; done
+    source: https://github.com/nextcloud/desktop.git
+    source-type: git
+    source-branch: stable-3.4
+    #override-pull: |
+    #  snapcraftctl pull
+    #  for commit in `ls ${SNAPCRAFT_PROJECT_DIR}/patches`; do patch -p1 < ${SNAPCRAFT_PROJECT_DIR}/patches/$commit; done
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
@@ -197,4 +199,4 @@ parts:
       - qtwayland5
     after:
       - desktop-qt5
-      - patches
+      # - patches
