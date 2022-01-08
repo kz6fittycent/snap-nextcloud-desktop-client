@@ -58,6 +58,10 @@ apps:
       - bin/desktop-launch
       - bin/gtk3-env-launch
     command: usr/bin/nextcloud
+    environment:
+      NO_AT_BRIDGE: 1
+      DISABLE_WAYLAND: 1
+      QT_QPA_PLATFORMTHEME: gtk3
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
   
     plugs:
