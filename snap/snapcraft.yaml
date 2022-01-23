@@ -41,6 +41,10 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes:sounds-themes
+  #etc-nextcloud:
+  #  interface: system-files
+  #  read:
+  #  - /etc/Nextcloud
 
 apps:
   nextcloudcmd:
@@ -50,6 +54,7 @@ apps:
       - home
       - network
       - network-bind
+    #  - etc-nextcloud
     
   nextcloud:
     adapter: full
@@ -78,6 +83,7 @@ apps:
       - password-manager-service
       - unity7
       - wayland
+    #  - etc-nextcloud
     
 build-packages:
   - build-essential
@@ -100,6 +106,14 @@ build-packages:
   - zlib1g-dev
 
 
+package-repositories:
+  - type: apt
+    components: [main]
+    suites: [focal]
+    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
+    url: http://archive.neon.kde.org/user
+
+
 layout:
   /usr/share/libdrm:
     bind: $SNAP/usr/share/libdrm
@@ -118,19 +132,6 @@ parts:
       '*': bin/
     stage:
       - -bin/README.*
-
-
-  qt5:
-    plugin: nil
-    prime: [-*]
-    override-build: |
-      echo "deb http://archive.neon.kde.org/user focal main" | tee /etc/apt/sources.list.d/kde-neon.list
-      wget -O - https://archive.neon.kde.org/public.key | apt-key add -
-      apt update
-      apt install -yy libqt5svg5-dev libqt5websockets5-dev qt5keychain-dev qtbase5-dev qtbase5-private-dev \
-      qtquickcontrols2-5-dev qttools5-dev qtwebengine5-dev
-    build-packages:
-      - wget
 
 
   desktop-qt5:
@@ -154,8 +155,6 @@ parts:
       - ttf-ubuntu-font-family
       - xdg-user-dirs
       - qt5-gtk-platformtheme
-    after:
-      - qt5
   
 
   nextcloud-desktop-client:
