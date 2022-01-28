@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.4.1'
+version: '3.4.2'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
