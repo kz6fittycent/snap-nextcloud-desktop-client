@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.4.2'
+version: '3.4.3'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -57,7 +57,7 @@ apps:
       - network
       - network-bind
     #  - etc-nextcloud
-    
+
   nextcloud:
     adapter: full
     extensions: [gnome-3-38]
@@ -70,7 +70,7 @@ apps:
       DISABLE_WAYLAND: 1
       QT_QPA_PLATFORMTHEME: gtk3
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
-  
+
     plugs:
       - browser-support
       - desktop
@@ -86,7 +86,7 @@ apps:
       - unity7
       - wayland
     #  - etc-nextcloud
-    
+
 build-packages:
   - build-essential
   - cmake
@@ -157,11 +157,11 @@ parts:
       - ttf-ubuntu-font-family
       - xdg-user-dirs
       - qt5-gtk-platformtheme
-  
+
 
   nextcloud-desktop-client:
     plugin: cmake
-    cmake-parameters: 
+    cmake-parameters:
       - -DCMAKE_BUILD_TYPE=RELEASE
       - -DCMAKE_INSTALL_PREFIX=/usr/
       - -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}/usr"
