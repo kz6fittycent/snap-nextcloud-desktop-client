@@ -85,6 +85,7 @@ apps:
       - password-manager-service
       - unity7
       - wayland
+      - removable-media
     #  - etc-nextcloud
 
 build-packages:
