@@ -201,3 +201,7 @@ parts:
       - qtwayland5
     after:
       - desktop-qt5
+      
+    override-pull: |
+      snapcraftctl pull
+      snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"      
