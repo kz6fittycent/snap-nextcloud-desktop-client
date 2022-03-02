@@ -25,6 +25,8 @@ compression: lzo
 
 icon: snap/gui/nextcloud.png
 
+assumes:
+  - command-chain
 
 plugs:
   gnome-3-38-2004:
@@ -64,6 +66,7 @@ apps:
     command-chain:
       - bin/desktop-launch
       - bin/gtk3-env-launch
+      - bin/homeishome-launch        
     command: usr/bin/nextcloud
     environment:
       NO_AT_BRIDGE: 1
@@ -136,7 +139,11 @@ parts:
     stage:
       - -bin/README.*
 
-
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch     
+      
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
