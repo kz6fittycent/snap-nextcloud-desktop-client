@@ -126,6 +126,8 @@ layout:
     bind: $SNAP/usr/share/qt5/translations/qtwebengine_locales
   /usr/share/nextcloud:
     bind: $SNAP/usr/share/nextcloud
+  /etc/Nextcloud:
+    bind: $SNAP:/etc/Nextcloud
 
 parts:
   launchers: # custom launcher to set QT_QPA_PLATFORMTHEME=gtk3 correctly
@@ -135,6 +137,12 @@ parts:
       '*': bin/
     stage:
       - -bin/README.*
+
+
+  patches:
+    plugin: dump
+    source: patches
+    prime: [-*]
 
 
   desktop-qt5:
@@ -168,15 +176,21 @@ parts:
       - -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}/usr"
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
-      - -DQUICK_COMPILER=ON
-    source: https://github.com/nextcloud/desktop.git
-    source-type: git
-    source-tag: v3.4.4 
+      - -DBUILD_SHELL_INTEGRATION=OFF
+      - -DBUILD_SHELL_INTEGRATION_ICONS=OFF
+      - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
+      - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.4.4.tar.gz
+    source-type: tar
+    override-pull: |
+      snapcraftctl pull
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
       - -usr/share/nemo-python
       - -usr/share/applications
+      - -usr/include/
     stage-packages:
       - libcloudproviders0
       - libqt5keychain1
@@ -193,4 +207,5 @@ parts:
       - qml-module-qtquick-layouts
       - qtwayland5
     after:
+      - patches
       - desktop-qt5
