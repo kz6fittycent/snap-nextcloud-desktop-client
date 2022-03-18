@@ -127,7 +127,7 @@ layout:
   /usr/share/nextcloud:
     bind: $SNAP/usr/share/nextcloud
   /etc/Nextcloud:
-    bind: $SNAP:/etc/Nextcloud
+    bind: $SNAP/etc/Nextcloud
 
 parts:
   launchers: # custom launcher to set QT_QPA_PLATFORMTHEME=gtk3 correctly
