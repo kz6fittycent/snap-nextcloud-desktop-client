@@ -171,7 +171,7 @@ parts:
       - -DQUICK_COMPILER=ON
     source: https://github.com/nextcloud/desktop.git
     source-type: git
-    source-branch: stable-3.4
+    source-tag: v3.4.4 
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
