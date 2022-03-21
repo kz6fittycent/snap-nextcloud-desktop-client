@@ -1,0 +1,12 @@
+diff -upNr desktop-3.4.4.orig/src/gui/application.cpp desktop-3.4.4.patched/src/gui/application.cpp
+--- desktop-3.4.4.orig/src/gui/application.cpp	2022-03-18 16:54:49.797539882 +0100
++++ desktop-3.4.4.patched/src/gui/application.cpp	2022-03-18 16:55:29.161794906 +0100
+@@ -179,7 +179,7 @@ Application::Application(int &argc, char
+     , _showLogWindow(false)
+     , _logExpire(0)
+     , _logFlush(false)
+-    , _logDebug(true)
++    , _logDebug(false)
+     , _userTriggeredConnect(false)
+     , _debugMode(false)
+     , _backgroundMode(false)

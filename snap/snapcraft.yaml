@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-adopt-info: nextcloud-desktop-client
+version: '3.4.4'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -45,11 +45,7 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes:sounds-themes
-  #etc-nextcloud:
-  #  interface: system-files
-  #  read:
-  #  - /etc/Nextcloud
-
+  
 apps:
   nextcloudcmd:
     adapter: full
@@ -58,8 +54,7 @@ apps:
       - home
       - network
       - network-bind
-    #  - etc-nextcloud
-
+    
   nextcloud:
     adapter: full
     extensions: [gnome-3-38]
@@ -89,8 +84,7 @@ apps:
       - unity7
       - wayland
       - removable-media
-    #  - etc-nextcloud
-
+    
 build-packages:
   - build-essential
   - cmake
@@ -129,6 +123,8 @@ layout:
     bind: $SNAP/usr/share/qt5/translations/qtwebengine_locales
   /usr/share/nextcloud:
     bind: $SNAP/usr/share/nextcloud
+  /etc/Nextcloud:
+    bind: $SNAP/etc/Nextcloud
 
 parts:
   launchers: # custom launcher to set QT_QPA_PLATFORMTHEME=gtk3 correctly
@@ -144,6 +140,12 @@ parts:
     stage-snaps:
       - homeishome-launch     
       
+  patches:
+    plugin: dump
+    source: patches
+    prime: [-*]
+
+
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
@@ -175,15 +177,21 @@ parts:
       - -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}/usr"
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
-      - -DQUICK_COMPILER=ON
-    source: https://github.com/nextcloud/desktop.git
-    source-type: git
-    source-branch: stable-3.4
+      - -DBUILD_SHELL_INTEGRATION=OFF
+      - -DBUILD_SHELL_INTEGRATION_ICONS=OFF
+      - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
+      - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.4.4.tar.gz
+    source-type: tar
+    override-pull: |
+      snapcraftctl pull
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
       - -usr/share/nemo-python
       - -usr/share/applications
+      - -usr/include/
     stage-packages:
       - libcloudproviders0
       - libqt5keychain1
@@ -200,8 +208,6 @@ parts:
       - qml-module-qtquick-layouts
       - qtwayland5
     after:
+      - patches
       - desktop-qt5
-      
-    override-pull: |
-      snapcraftctl pull
-      snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"      
+    
