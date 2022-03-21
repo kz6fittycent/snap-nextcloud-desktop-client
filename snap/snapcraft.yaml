@@ -25,6 +25,8 @@ compression: lzo
 
 icon: snap/gui/nextcloud.png
 
+assumes:
+  - command-chain
 
 plugs:
   gnome-3-38-2004:
@@ -43,11 +45,7 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes:sounds-themes
-  #etc-nextcloud:
-  #  interface: system-files
-  #  read:
-  #  - /etc/Nextcloud
-
+  
 apps:
   nextcloudcmd:
     adapter: full
@@ -56,14 +54,14 @@ apps:
       - home
       - network
       - network-bind
-    #  - etc-nextcloud
-
+    
   nextcloud:
     adapter: full
     extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
       - bin/gtk3-env-launch
+      - bin/homeishome-launch        
     command: usr/bin/nextcloud
     environment:
       NO_AT_BRIDGE: 1
@@ -86,8 +84,7 @@ apps:
       - unity7
       - wayland
       - removable-media
-    #  - etc-nextcloud
-
+    
 build-packages:
   - build-essential
   - cmake
@@ -138,7 +135,11 @@ parts:
     stage:
       - -bin/README.*
 
-
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch     
+      
   patches:
     plugin: dump
     source: patches
@@ -209,3 +210,4 @@ parts:
     after:
       - patches
       - desktop-qt5
+    
