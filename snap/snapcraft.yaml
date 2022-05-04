@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.4.4'
+version: '3.5.0'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -180,7 +180,7 @@ parts:
       - -DBUILD_SHELL_INTEGRATION_ICONS=OFF
       - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
       - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
-    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.4.4.tar.gz
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.0.tar.gz
     source-type: tar
     override-pull: |
       snapcraftctl pull
