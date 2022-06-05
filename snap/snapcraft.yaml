@@ -1,6 +1,6 @@
 name: nextcloud-desktop-client
-version: '3.5.0'
-base: core20
+version: '3.5.1'
+base: core22
 summary: Nextcloud Desktop Client
 description: |
   Use the desktop clients to keep your files synchronized between your Nextcloud server and your desktop. Select one or more directories on your local machine and always have access to your latest files wherever you are. 
@@ -14,8 +14,9 @@ description: |
 
 
 architectures:
-  - build-on: [amd64, arm64]
-    run-on: [amd64, arm64]
+  - build-on: 
+    - amd64
+    - arm64
 
 
 grade: stable
@@ -29,8 +30,8 @@ assumes:
   - command-chain
 
 plugs:
-  gnome-3-38-2004:
-    default-provider: gnome-3-38-2004
+  gnome-42-2204:
+    default-provider: gnome-42-2204
     interface: content
     target: $SNAP/gnome-platform
   gtk-3-themes:
@@ -48,7 +49,6 @@ plugs:
   
 apps:
   nextcloudcmd:
-    adapter: full
     command: usr/bin/nextcloudcmd
     plugs:
       - home
@@ -56,8 +56,6 @@ apps:
       - network-bind
     
   nextcloud:
-    adapter: full
-    extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
       - bin/gtk3-env-launch
@@ -84,33 +82,6 @@ apps:
       - unity7
       - wayland
       - removable-media
-    
-build-packages:
-  - build-essential
-  - cmake
-  - dpkg-dev
-  - libcloudproviders-dev
-  - libqt5svg5-dev
-  - libqt5websockets5-dev
-  - librsvg2-bin
-  - libsqlite3-dev
-  - libssl-dev
-  - qt5keychain-dev
-  - qtbase5-dev
-  - qtbase5-private-dev
-  - qtquickcontrols2-5-dev
-  - qttools5-dev
-  - qtwebengine5-dev
-  - wget
-  - zlib1g-dev
-
-
-package-repositories:
-  - type: apt
-    components: [main]
-    suites: [focal]
-    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
-    url: http://archive.neon.kde.org/user
 
 
 layout:
@@ -193,6 +164,24 @@ parts:
       - -usr/share/nemo-python
       - -usr/share/applications
       - -usr/include/
+    build-packages:
+      - build-essential
+      - cmake
+      - dpkg-dev
+      - libcloudproviders-dev
+      - libqt5svg5-dev
+      - libqt5websockets5-dev
+      - librsvg2-bin
+      - libsqlite3-dev
+      - libssl-dev
+      - qt5keychain-dev
+      - qtbase5-dev
+      - qtbase5-private-dev
+      - qtquickcontrols2-5-dev
+      - qttools5-dev
+      - qtwebengine5-dev
+      - wget
+      - zlib1g-dev
     stage-packages:
       - libcloudproviders0
       - libqt5keychain1
