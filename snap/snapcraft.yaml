@@ -28,24 +28,6 @@ icon: snap/gui/nextcloud.png
 
 assumes:
   - command-chain
-
-plugs:
-  gnome-42-2204:
-    default-provider: gnome-42-2204
-    interface: content
-    target: $SNAP/gnome-platform
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes:gtk-3-themes
-  icon-themes:
-    interface: content
-    target: $SNAP/data-dir/icons
-    default-provider: gtk-common-themes:icon-themes
-  sound-themes:
-    interface: content
-    target: $SNAP/data-dir/sounds
-    default-provider: gtk-common-themes:sounds-themes
   
 apps:
   nextcloudcmd:
@@ -102,19 +84,12 @@ parts:
     plugin: dump
     organize:
       '*': bin/
-    stage:
-      - -bin/README.*
 
   homeishome-launch:
     plugin: nil
     stage-snaps:
       - homeishome-launch     
-      
-  patches:
-    plugin: dump
-    source: patches
-    prime: [-*]
-
+  
 
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
@@ -135,7 +110,7 @@ parts:
       - locales-all
       - qt5-gtk-platformtheme
       - shared-mime-info
-      - ttf-ubuntu-font-family
+      - fonts-ubuntu
       - xdg-user-dirs
 
 
@@ -152,12 +127,11 @@ parts:
       - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
       - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
       - -DWITH_CRASHREPORTER=OFF
-    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.0.tar.gz
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.1.tar.gz
     source-type: tar
     override-pull: |
       snapcraftctl pull
-      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/fix_menu.diff"
-      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+      patch -p1 < "${CRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
@@ -169,6 +143,7 @@ parts:
       - cmake
       - dpkg-dev
       - libcloudproviders-dev
+      - libdbus-1-dev
       - libqt5svg5-dev
       - libqt5websockets5-dev
       - librsvg2-bin
@@ -205,6 +180,5 @@ parts:
       - qttranslations5-l10n
       - qtwayland5
     after:
-      - patches
       - desktop-qt5
     
