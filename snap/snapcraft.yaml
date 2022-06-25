@@ -60,7 +60,6 @@ apps:
     extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
-      - bin/gtk3-env-launch
       - bin/homeishome-launch        
     command: usr/bin/nextcloud
     environment:
@@ -126,14 +125,6 @@ layout:
     bind: $SNAP/etc/Nextcloud
 
 parts:
-  launchers: # custom launcher to set QT_QPA_PLATFORMTHEME=gtk3 correctly
-    source: local/launchers
-    plugin: dump
-    organize:
-      '*': bin/
-    stage:
-      - -bin/README.*
-
   homeishome-launch:
     plugin: nil
     stage-snaps:
@@ -186,6 +177,7 @@ parts:
     override-pull: |
       snapcraftctl pull
       patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/05a4b45ba94abdcd129626ec1963f10042488f4a.patch"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
