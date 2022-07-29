@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.5.2'
+version: '3.5.3'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -129,12 +129,6 @@ parts:
     plugin: nil
     stage-snaps:
       - homeishome-launch     
-      
-  patches:
-    plugin: dump
-    source: patches
-    prime: [-*]
-
 
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
@@ -172,12 +166,11 @@ parts:
       - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
       - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
       - -DWITH_CRASHREPORTER=OFF
-    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.2.tar.gz
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.3.tar.gz
     source-type: tar
     override-pull: |
       snapcraftctl pull
       patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
-      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/05a4b45ba94abdcd129626ec1963f10042488f4a.patch"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
@@ -207,6 +200,5 @@ parts:
       - qttranslations5-l10n
       - qtwayland5
     after:
-      - patches
       - desktop-qt5
     
