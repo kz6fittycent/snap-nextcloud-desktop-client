@@ -14,9 +14,9 @@ description: |
 
 
 architectures:
-  - build-on: [amd64, arm64]
-    run-on: [amd64, arm64]
-
+  - build-on: arm64
+  - build-on: armhf
+  - build-on: amd64
 
 grade: stable
 confinement: strict
@@ -173,9 +173,9 @@ parts:
       - -DWITH_CRASHREPORTER=OFF
     source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.3.tar.gz
     source-type: tar
-    override-pull: |
-      snapcraftctl pull
-      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+    # override-pull: |
+    #   snapcraftctl pull
+    #   patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
