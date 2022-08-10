@@ -14,8 +14,8 @@ description: |
 
 
 architectures:
-  - build-on: [amd64, arm64]
-    run-on: [amd64, arm64]
+  - build-on: [amd64, arm64, armhf]
+    run-on: [amd64, arm64, armhf]
 
 
 grade: stable
@@ -125,6 +125,11 @@ layout:
     bind: $SNAP/etc/Nextcloud
 
 parts:
+  patches:
+    plugin: dump
+    source: patches
+    prime: [-*]
+
   homeishome-launch:
     plugin: nil
     stage-snaps:
@@ -200,5 +205,6 @@ parts:
       - qttranslations5-l10n
       - qtwayland5
     after:
+      - patches
       - desktop-qt5
     
