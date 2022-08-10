@@ -14,8 +14,8 @@ description: |
 
 
 architectures:
-  - build-on: [amd64, arm64, armhf]
-    run-on: [amd64, arm64, armhf]
+  - build-on: [amd64, arm64]
+    run-on: [amd64, arm64]
 
 
 grade: stable
