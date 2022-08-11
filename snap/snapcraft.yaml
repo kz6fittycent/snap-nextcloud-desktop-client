@@ -1,6 +1,6 @@
 name: nextcloud-desktop-client
 version: '3.5.3'
-base: core20
+base: core22
 summary: Nextcloud Desktop Client
 description: |
   Use the desktop clients to keep your files synchronized between your Nextcloud server and your desktop. Select one or more directories on your local machine and always have access to your latest files wherever you are. 
@@ -28,10 +28,6 @@ assumes:
   - command-chain
 
 plugs:
-  gnome-3-38-2004:
-    default-provider: gnome-3-38-2004
-    interface: content
-    target: $SNAP/gnome-platform
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
@@ -47,7 +43,6 @@ plugs:
   
 apps:
   nextcloudcmd:
-    adapter: full
     command: usr/bin/nextcloudcmd
     plugs:
       - home
@@ -55,8 +50,7 @@ apps:
       - network-bind
     
   nextcloud:
-    adapter: full
-    extensions: [gnome-3-38]
+    extensions: [gnome]
     command-chain:
       - bin/desktop-launch
       - bin/homeishome-launch        
@@ -103,14 +97,6 @@ build-packages:
   - zlib1g-dev
 
 
-package-repositories:
-  - type: apt
-    components: [main]
-    suites: [focal]
-    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
-    url: http://archive.neon.kde.org/user
-
-
 layout:
   /usr/share/libdrm:
     bind: $SNAP/usr/share/libdrm
@@ -148,7 +134,7 @@ parts:
       - locales-all
       - qt5-gtk-platformtheme
       - shared-mime-info
-      - ttf-ubuntu-font-family
+      - fonts-ubuntu
       - xdg-user-dirs
 
 
@@ -157,7 +143,7 @@ parts:
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=RELEASE
       - -DCMAKE_INSTALL_PREFIX=/usr/
-      - -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}/usr"
+      - -DCMAKE_PREFIX_PATH="${CRAFT_STAGE}/usr"
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
       - -DBUILD_SHELL_INTEGRATION=OFF
@@ -168,8 +154,8 @@ parts:
     source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.3.tar.gz
     source-type: tar
     override-pull: |
-      snapcraftctl pull
-      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+      craftctl default
+      patch -p1 < "${CRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
