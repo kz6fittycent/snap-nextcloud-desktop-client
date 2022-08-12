@@ -76,25 +76,6 @@ apps:
       - unity7
       - wayland
       - removable-media
-    
-build-packages:
-  - build-essential
-  - cmake
-  - dpkg-dev
-  - libcloudproviders-dev
-  - libqt5svg5-dev
-  - libqt5websockets5-dev
-  - librsvg2-bin
-  - libsqlite3-dev
-  - libssl-dev
-  - qt5keychain-dev
-  - qtbase5-dev
-  - qtbase5-private-dev
-  - qtquickcontrols2-5-dev
-  - qttools5-dev
-  - qtwebengine5-dev
-  - wget
-  - zlib1g-dev
 
 
 layout:
@@ -110,11 +91,6 @@ layout:
     bind: $SNAP/etc/Nextcloud
 
 parts:
-  homeishome-launch:
-    plugin: nil
-    stage-snaps:
-      - homeishome-launch     
-
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
@@ -162,6 +138,25 @@ parts:
       - -usr/share/nemo-python
       - -usr/share/applications
       - -usr/include/
+    build-packages:
+      - build-essential
+      - cmake
+      - dpkg-dev
+      - libcloudproviders-dev
+      - libdbus-1-dev
+      - libqt5svg5-dev
+      - libqt5websockets5-dev
+      - librsvg2-bin
+      - libsqlite3-dev
+      - libssl-dev
+      - qt5keychain-dev
+      - qtbase5-dev
+      - qtbase5-private-dev
+      - qtquickcontrols2-5-dev
+      - qttools5-dev
+      - qtwebengine5-dev
+      - wget
+      - zlib1g-dev
     stage-packages:
       - libcloudproviders0
       - libqt5keychain1
