@@ -52,8 +52,7 @@ apps:
   nextcloud:
     extensions: [gnome]
     command-chain:
-      - bin/desktop-launch
-      - bin/homeishome-launch        
+      - bin/desktop-launch        
     command: usr/bin/nextcloud
     environment:
       NO_AT_BRIDGE: 1
