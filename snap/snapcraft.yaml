@@ -16,6 +16,7 @@ description: |
 architectures:
   - build-on: arm64
   - build-on: amd64
+  - build-on: armhf
 
 grade: stable
 confinement: strict
