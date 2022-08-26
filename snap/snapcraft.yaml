@@ -1,6 +1,6 @@
 name: nextcloud-desktop-client
 version: '3.5.3'
-base: core22
+base: core20
 summary: Nextcloud Desktop Client
 description: |
   Use the desktop clients to keep your files synchronized between your Nextcloud server and your desktop. Select one or more directories on your local machine and always have access to your latest files wherever you are. 
@@ -28,6 +28,10 @@ assumes:
   - command-chain
 
 plugs:
+  gnome-3-38-2004:
+    default-provider: gnome-3-38-2004
+    interface: content
+    target: $SNAP/gnome-platform
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
@@ -40,19 +44,22 @@ plugs:
     interface: content
     target: $SNAP/data-dir/sounds
     default-provider: gtk-common-themes:sounds-themes
-  
+
 apps:
   nextcloudcmd:
+    adapter: full
     command: usr/bin/nextcloudcmd
     plugs:
       - home
       - network
       - network-bind
-    
+
   nextcloud:
-    extensions: [gnome]
+    adapter: full
+    extensions: [gnome-3-38]
     command-chain:
-      - bin/desktop-launch        
+      - bin/desktop-launch
+      - bin/homeishome-launch
     command: usr/bin/nextcloud
     environment:
       NO_AT_BRIDGE: 1
@@ -76,6 +83,33 @@ apps:
       - wayland
       - removable-media
 
+build-packages:
+  - build-essential
+  - cmake
+  - dpkg-dev
+  - libcloudproviders-dev
+  - libqt5svg5-dev
+  - libqt5websockets5-dev
+  - librsvg2-bin
+  - libsqlite3-dev
+  - libssl-dev
+  - qt5keychain-dev
+  - qtbase5-dev
+  - qtbase5-private-dev
+  - qtquickcontrols2-5-dev
+  - qttools5-dev
+  - qtwebengine5-dev
+  - wget
+  - zlib1g-dev
+
+
+package-repositories:
+  - type: apt
+    components: [main]
+    suites: [focal]
+    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
+    url: http://archive.neon.kde.org/user
+
 
 layout:
   /usr/share/libdrm:
@@ -90,6 +124,11 @@ layout:
     bind: $SNAP/etc/Nextcloud
 
 parts:
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch
+
   desktop-qt5:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-subdir: qt
@@ -109,7 +148,7 @@ parts:
       - locales-all
       - qt5-gtk-platformtheme
       - shared-mime-info
-      - fonts-ubuntu
+      - ttf-ubuntu-font-family
       - xdg-user-dirs
 
 
@@ -118,7 +157,7 @@ parts:
     cmake-parameters:
       - -DCMAKE_BUILD_TYPE=RELEASE
       - -DCMAKE_INSTALL_PREFIX=/usr/
-      - -DCMAKE_PREFIX_PATH="${CRAFT_STAGE}/usr"
+      - -DCMAKE_PREFIX_PATH="${SNAPCRAFT_STAGE}/usr"
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
       - -DBUILD_SHELL_INTEGRATION=OFF
@@ -129,33 +168,14 @@ parts:
     source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.5.3.tar.gz
     source-type: tar
     override-pull: |
-      craftctl default
-      patch -p1 < "${CRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+      snapcraftctl pull
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
       - -usr/share/nemo-python
       - -usr/share/applications
       - -usr/include/
-    build-packages:
-      - build-essential
-      - cmake
-      - dpkg-dev
-      - libcloudproviders-dev
-      - libdbus-1-dev
-      - libqt5svg5-dev
-      - libqt5websockets5-dev
-      - librsvg2-bin
-      - libsqlite3-dev
-      - libssl-dev
-      - qt5keychain-dev
-      - qtbase5-dev
-      - qtbase5-private-dev
-      - qtquickcontrols2-5-dev
-      - qttools5-dev
-      - qtwebengine5-dev
-      - wget
-      - zlib1g-dev
     stage-packages:
       - libcloudproviders0
       - libqt5keychain1
