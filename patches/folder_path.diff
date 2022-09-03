@@ -98,7 +98,7 @@ diff -upNr desktop-3.5.4.orig/src/gui/syncrunfilelog.cpp desktop-3.5.4.patched/s
      const qint64 logfileMaxSize = 10 * 1024 * 1024; // 10MiB
  
 -    const QString logpath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-+    const QString logpath = getHomeFolderPath();
++    const QString logpath = getCommonFolderPath();
      if(!QDir(logpath).exists()) {
          QDir().mkdir(logpath);
      }
