@@ -28,6 +28,10 @@ assumes:
   - command-chain
 
 plugs:
+  gnome-3-38-2004:
+    default-provider: gnome-3-38-2004
+    interface: content
+    target: $SNAP/gnome-platform
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
@@ -52,9 +56,16 @@ apps:
 
   nextcloud:
     adapter: full
-    extensions: [kde-neon]
+    extensions: [gnome-3-38]
+    command-chain:
+      - bin/desktop-launch
     command: usr/bin/nextcloud
+    environment:
+      NO_AT_BRIDGE: 1
+      DISABLE_WAYLAND: 1
+      QT_QPA_PLATFORMTHEME: gtk3
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
+
     plugs:
       - browser-support
       - desktop
@@ -70,11 +81,12 @@ apps:
       - unity7
       - wayland
       - removable-media
-      - x11
 
 build-packages:
+  - build-essential
+  - cmake
+  - dpkg-dev
   - libcloudproviders-dev
-  - libdbus-1-dev
   - libqt5svg5-dev
   - libqt5websockets5-dev
   - librsvg2-bin
@@ -86,6 +98,7 @@ build-packages:
   - qtquickcontrols2-5-dev
   - qttools5-dev
   - qtwebengine5-dev
+  - wget
   - zlib1g-dev
 
 
@@ -100,12 +113,39 @@ package-repositories:
 layout:
   /usr/share/libdrm:
     bind: $SNAP/usr/share/libdrm
+  /usr/share/qt5/resources:
+    bind: $SNAP/usr/share/qt5/resources
+  /usr/share/qt5/translations/qtwebengine_locales:
+    bind: $SNAP/usr/share/qt5/translations/qtwebengine_locales
   /usr/share/nextcloud:
     bind: $SNAP/usr/share/nextcloud
   /etc/Nextcloud:
     bind: $SNAP/etc/Nextcloud
 
 parts:
+  desktop-qt5:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: qt
+    plugin: make
+    make-parameters: ["FLAVOR=qt5"]
+    stage-packages:
+      - adwaita-icon-theme
+      - dmz-cursor-theme
+      - fcitx-frontend-qt5
+      - gnome-themes-standard
+      - libgdk-pixbuf2.0-0
+      - libgtk2.0-0
+      - libqt5gui5
+      - libqt5svg5
+      - libxkbcommon0
+      - light-themes
+      - locales-all
+      - qt5-gtk-platformtheme
+      - shared-mime-info
+      - ttf-ubuntu-font-family
+      - xdg-user-dirs
+
+
   nextcloud-desktop-client:
     plugin: cmake
     cmake-parameters:
@@ -124,6 +164,7 @@ parts:
     override-pull: |
       snapcraftctl pull
       patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/folder_path.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
@@ -152,22 +193,6 @@ parts:
       - qt5-qmltooling-plugins
       - qttranslations5-l10n
       - qtwayland5
-
-  cleanup:
     after:
-      - nextcloud-desktop-client
-    plugin: nil
-    build-snaps:
-      - kde-frameworks-5-96-qt-5-15-5-core20
-    override-prime: |
-      set -eux
-      for snap in "kde-frameworks-5-96-qt-5-15-5-core20"; do  # List all content-snaps you're using here
-          cd "/snap/$snap/current" && find . -type f,l -exec rm -f "$SNAPCRAFT_PRIME/{}" "$SNAPCRAFT_PRIME/usr/{}" \;
-      done
-      for CRUFT in bug lintian man; do
-          rm -rf $SNAPCRAFT_PRIME/usr/share/$CRUFT
-      done
-      find $SNAPCRAFT_PRIME/usr/share/doc/ -type f -not -name 'copyright' -delete
-      find $SNAPCRAFT_PRIME/usr/share -type d -empty -delete
-
+      - desktop-qt5
     

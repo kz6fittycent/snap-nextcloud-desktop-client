@@ -1,0 +1,177 @@
+diff -upNr desktop-3.5.4.orig/src/common/utility.h desktop-3.5.4.patched/src/common/utility.h
+--- desktop-3.5.4.orig/src/common/utility.h	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/common/utility.h	2022-09-03 16:59:52.314120555 +0200
+@@ -30,6 +30,8 @@
+ #include <QMap>
+ #include <QUrl>
+ #include <QUrlQuery>
++#include <QDir>
++#include <QStandardPaths>
+ #include <functional>
+ #include <memory>
+ 
+@@ -327,5 +329,30 @@ inline bool Utility::isBSD()
+ #endif
+ }
+ 
++inline QString getCommonFolderPath()
++{
++    QString commonFolderPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
++    QString snapFolderCommon = qEnvironmentVariable("SNAP_USER_COMMON");
++
++    if (!snapFolderCommon.isNull()) {
++        commonFolderPath = snapFolderCommon;
++    }
++
++    return commonFolderPath;
++}
++
++inline QString getHomeFolderPath()
++    {
++        QString homeFolder = QDir::homePath();
++        QString snapFolderHome = qEnvironmentVariable("SNAP_REAL_HOME");
++
++
++        if (!snapFolderHome.isNull()) {
++            homeFolder = snapFolderHome;
++        }
++
++        return homeFolder;
++    }
+ }
++
+ #endif // UTILITY_H
+diff -upNr desktop-3.5.4.orig/src/gui/folderwizard.cpp desktop-3.5.4.patched/src/gui/folderwizard.cpp
+--- desktop-3.5.4.orig/src/gui/folderwizard.cpp	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/gui/folderwizard.cpp	2022-09-03 17:02:00.230521365 +0200
+@@ -23,6 +23,7 @@
+ #include "creds/abstractcredentials.h"
+ #include "wizard/owncloudwizard.h"
+ #include "common/asserts.h"
++#include "common/utility.h"
+ 
+ #include <QDesktopServices>
+ #include <QDir>
+@@ -70,7 +71,7 @@ FolderWizardLocalPath::FolderWizardLocal
+ 
+     QUrl serverUrl = _account->url();
+     serverUrl.setUserName(_account->credentials()->user());
+-    QString defaultPath = QDir::homePath() + QLatin1Char('/') + Theme::instance()->appName();
++    QString defaultPath = getHomeFolderPath() + QLatin1Char('/') + Theme::instance()->appName();
+     defaultPath = FolderMan::instance()->findGoodPathForNewSyncFolder(defaultPath, serverUrl);
+     _ui.localFolderLineEdit->setText(QDir::toNativeSeparators(defaultPath));
+     _ui.localFolderLineEdit->setToolTip(tr("Enter the path to the local folder."));
+@@ -122,7 +123,7 @@ bool FolderWizardLocalPath::isComplete()
+ 
+ void FolderWizardLocalPath::slotChooseLocalFolder()
+ {
+-    QString sf = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
++    QString sf = getHomeFolderPath();
+     QDir d(sf);
+ 
+     // open the first entry of the home dir. Otherwise the dir picker comes
+diff -upNr desktop-3.5.4.orig/src/gui/owncloudsetupwizard.cpp desktop-3.5.4.patched/src/gui/owncloudsetupwizard.cpp
+--- desktop-3.5.4.orig/src/gui/owncloudsetupwizard.cpp	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/gui/owncloudsetupwizard.cpp	2022-09-03 17:08:52.854708410 +0200
+@@ -37,6 +37,7 @@
+ #include "creds/credentialsfactory.h"
+ #include "creds/abstractcredentials.h"
+ #include "creds/dummycredentials.h"
++#include "common/utility.h"
+ 
+ namespace OCC {
+ 
+@@ -105,7 +106,7 @@ void OwncloudSetupWizard::startWizard()
+     // if its a relative path, prepend with users home dir, otherwise use as absolute path
+ 
+     if (!QDir(localFolder).isAbsolute()) {
+-        localFolder = QDir::homePath() + QLatin1Char('/') + localFolder;
++        localFolder = getHomeFolderPath() + QLatin1Char('/') + localFolder;
+     }
+ 
+     _ocWizard->setProperty("localFolder", localFolder);
+diff -upNr desktop-3.5.4.orig/src/gui/syncrunfilelog.cpp desktop-3.5.4.patched/src/gui/syncrunfilelog.cpp
+--- desktop-3.5.4.orig/src/gui/syncrunfilelog.cpp	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/gui/syncrunfilelog.cpp	2022-09-03 17:09:54.318473563 +0200
+@@ -32,7 +32,7 @@ void SyncRunFileLog::start(const QString
+ {
+     const qint64 logfileMaxSize = 10 * 1024 * 1024; // 10MiB
+ 
+-    const QString logpath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
++    const QString logpath = getHomeFolderPath();
+     if(!QDir(logpath).exists()) {
+         QDir().mkdir(logpath);
+     }
+diff -upNr desktop-3.5.4.orig/src/gui/wizard/owncloudadvancedsetuppage.cpp desktop-3.5.4.patched/src/gui/wizard/owncloudadvancedsetuppage.cpp
+--- desktop-3.5.4.orig/src/gui/wizard/owncloudadvancedsetuppage.cpp	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/gui/wizard/owncloudadvancedsetuppage.cpp	2022-09-03 17:01:37.766450856 +0200
+@@ -34,6 +34,7 @@
+ #include "creds/abstractcredentials.h"
+ #include "networkjobs.h"
+ #include "wizard/owncloudwizard.h"
++#include "common/utility.h"
+ 
+ namespace OCC {
+ 
+@@ -423,7 +424,7 @@ void OwncloudAdvancedSetupPage::setRemot
+ 
+ void OwncloudAdvancedSetupPage::slotSelectFolder()
+ {
+-    QString dir = QFileDialog::getExistingDirectory(nullptr, tr("Local Sync Folder"), QDir::homePath());
++    QString dir = QFileDialog::getExistingDirectory(nullptr, tr("Local Sync Folder"), getHomeFolderPath());
+     if (!dir.isEmpty()) {
+         // TODO: remove when UX decision is made
+         refreshVirtualFilesAvailibility(dir);
+@@ -441,7 +442,7 @@ void OwncloudAdvancedSetupPage::slotSele
+ 
+ void OwncloudAdvancedSetupPage::setLocalFolderPushButtonPath(const QString &path)
+ {
+-    const auto homeDir = QDir::homePath().endsWith('/') ? QDir::homePath() : QDir::homePath() + QLatin1Char('/');
++    const auto homeDir = getHomeFolderPath().endsWith('/') ? getHomeFolderPath() : getHomeFolderPath() + QLatin1Char('/');
+ 
+     if (!path.startsWith(homeDir)) {
+         _ui.pbSelectLocalFolder->setText(QDir::toNativeSeparators(path));
+@@ -532,8 +533,8 @@ void OwncloudAdvancedSetupPage::slotQuot
+ qint64 OwncloudAdvancedSetupPage::availableLocalSpace() const
+ {
+     QString localDir = localFolder();
+-    QString path = !QDir(localDir).exists() && localDir.contains(QDir::homePath()) ?
+-                QDir::homePath() : localDir;
++    QString path = !QDir(localDir).exists() && localDir.contains(getHomeFolderPath()) ?
++                getHomeFolderPath() : localDir;
+     QStorageInfo storage(QDir::toNativeSeparators(path));
+ 
+     return storage.bytesAvailable();
+diff -upNr desktop-3.5.4.orig/src/libsync/configfile.cpp desktop-3.5.4.patched/src/libsync/configfile.cpp
+--- desktop-3.5.4.orig/src/libsync/configfile.cpp	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/libsync/configfile.cpp	2022-09-03 17:12:35.178043989 +0200
+@@ -965,7 +965,7 @@ void ConfigFile::setAutomaticLogDir(bool
+ 
+ QString ConfigFile::logDir() const
+ {
+-    const auto defaultLogDir = QString(configPath() + QStringLiteral("/logs"));
++    const auto defaultLogDir = QString(getCommonFolderPath() + QStringLiteral("/logs"));
+     QSettings settings(configFile(), QSettings::IniFormat);
+     return settings.value(QLatin1String(logDirC), defaultLogDir).toString();
+ }
+diff -upNr desktop-3.5.4.orig/src/libsync/logger.cpp desktop-3.5.4.patched/src/libsync/logger.cpp
+--- desktop-3.5.4.orig/src/libsync/logger.cpp	2022-08-02 14:32:26.000000000 +0200
++++ desktop-3.5.4.patched/src/libsync/logger.cpp	2022-09-03 16:55:55.833385118 +0200
+@@ -215,7 +215,7 @@ void Logger::setLogDebug(bool debug)
+ 
+ QString Logger::temporaryFolderLogDirPath() const
+ {
+-    return QDir::temp().filePath(QStringLiteral(APPLICATION_SHORTNAME "-logdir"));
++    return getCommonFolderPath();
+ }
+ 
+ void Logger::setupTemporaryFolderLogDir()
+@@ -255,7 +255,7 @@ void Logger::setLogRules(const QSet<QStr
+ 
+ void Logger::dumpCrashLog()
+ {
+-    QFile logFile(QDir::tempPath() + QStringLiteral("/" APPLICATION_NAME "-crash.log"));
++    QFile logFile(getCommonFolderPath() + QStringLiteral("/" APPLICATION_NAME "-crash.log"));
+     if (logFile.open(QFile::WriteOnly)) {
+         QTextStream out(&logFile);
+         for (int i = 1; i <= CrashLogSize; ++i) {
