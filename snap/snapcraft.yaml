@@ -1,6 +1,6 @@
 name: nextcloud-desktop-client
 version: '3.6.1'
-base: core22
+base: core20
 summary: Nextcloud Desktop Client
 description: |
   Use the desktop clients to keep your files synchronized between your Nextcloud server and your desktop. Select one or more directories on your local machine and always have access to your latest files wherever you are. 
@@ -28,6 +28,10 @@ assumes:
   - command-chain
 
 plugs:
+  gnome-3-38-2004:
+    default-provider: gnome-3-38-2004
+    interface: content
+    target: $SNAP/gnome-platform
   gtk-3-themes:
     interface: content
     target: $SNAP/data-dir/themes
@@ -43,6 +47,7 @@ plugs:
 
 apps:
   nextcloudcmd:
+    adapter: full
     command: usr/bin/nextcloudcmd
     plugs:
       - home
@@ -50,13 +55,15 @@ apps:
       - network-bind
 
   nextcloud:
-    extensions: [gnome]
+    adapter: full
+    extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
     command: usr/bin/nextcloud
     environment:
       NO_AT_BRIDGE: 1
       DISABLE_WAYLAND: 1
+      QT_QPA_PLATFORMTHEME: gtk3
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
 
     plugs:
@@ -91,6 +98,14 @@ build-packages:
   - zlib1g-dev
 
 
+package-repositories:
+  - type: apt
+    components: [main]
+    suites: [focal]
+    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
+    url: http://archive.neon.kde.org/user
+
+
 layout:
   /usr/share/libdrm:
     bind: $SNAP/usr/share/libdrm
@@ -116,27 +131,27 @@ parts:
       - libxkbcommon0
       - qt5-gtk-platformtheme
       - shared-mime-info
-      - fonts-ubuntu
 
 
   nextcloud-desktop-client:
     plugin: cmake
     cmake-parameters:
-      - -DCMAKE_BUILD_TYPE=RELEASE
-      - -DCMAKE_INSTALL_PREFIX=/usr/
+      - -DBUILD_SHELL_INTEGRATION=OFF
+      - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
+      - -DBUILD_SHELL_INTEGRATION_ICONS=OFF
+      - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
-      - -DBUILD_SHELL_INTEGRATION=OFF
-      - -DBUILD_SHELL_INTEGRATION_ICONS=OFF
-      - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
-      - -DBUILD_SHELL_INTEGRATION_NAUTILUS=OFF
+      - -DCMAKE_BUILD_TYPE=RELEASE
+      - -DCMAKE_INSTALL_PREFIX=/usr/
+      - -DQUICK_COMPILER=ON
       - -DWITH_CRASHREPORTER=OFF
     source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.6.1.tar.gz
     source-type: tar
     override-pull: |
-      craftctl default
-      patch -p1 < "${CRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
-      patch -p1 < "${CRAFT_PROJECT_DIR}/patches/folder_path.diff"
+      snapcraftctl pull
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
+      patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/folder_path.diff"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
@@ -154,11 +169,14 @@ parts:
       - libqt5webenginewidgets5
       - libqt5websockets5
       - qml-module-qt-labs-platform
+      - qml-module-qt-labs-qmlmodels
       - qml-module-qtgraphicaleffects
       - qml-module-qtmultimedia
       - qml-module-qtqml
       - qml-module-qtqml-models2
+      - qml-module-qtquick-controls
       - qml-module-qtquick-controls2
+      - qml-module-qtquick-dialogs
       - qml-module-qtquick-layouts
       - qml-module-qtquick-window2
       - qt5-image-formats-plugins
