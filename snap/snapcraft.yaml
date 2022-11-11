@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.6.1'
+version: '3.6.2'
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -28,14 +28,6 @@ assumes:
   - command-chain
 
 plugs:
-  gnome-3-38-2004:
-    default-provider: gnome-3-38-2004
-    interface: content
-    target: $SNAP/gnome-platform
-  gtk-3-themes:
-    interface: content
-    target: $SNAP/data-dir/themes
-    default-provider: gtk-common-themes:gtk-3-themes
   icon-themes:
     interface: content
     target: $SNAP/data-dir/icons
@@ -63,7 +55,6 @@ apps:
     environment:
       NO_AT_BRIDGE: 1
       DISABLE_WAYLAND: 1
-      QT_QPA_PLATFORMTHEME: gtk3
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
 
     plugs:
@@ -146,7 +137,7 @@ parts:
       - -DCMAKE_INSTALL_PREFIX=/usr/
       - -DQUICK_COMPILER=ON
       - -DWITH_CRASHREPORTER=OFF
-    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.6.1.tar.gz
+    source: https://github.com/nextcloud/desktop/archive/refs/tags/v3.6.2.tar.gz
     source-type: tar
     override-pull: |
       snapcraftctl pull
