@@ -123,9 +123,9 @@ parts:
   nextcloud-desktop-client:
     plugin: cmake
     cmake-parameters:
-      - -DBUILD_SHELL_INTEGRATION=OFF
+      - -DBUILD_SHELL_INTEGRATION=ON
       - -DBUILD_SHELL_INTEGRATION_DOLPHIN=OFF
-      - -DBUILD_SHELL_INTEGRATION_ICONS=OFF
+      - -DBUILD_SHELL_INTEGRATION_ICONS=ON
       - -DBUILD_SHELL_INTEGRATION_NAUTILUS=ON
       - -DBUILD_TESTING=OFF
       - -DBUILD_UPDATER=OFF
@@ -143,7 +143,7 @@ parts:
       snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"
     stage:
       - -usr/share/caja-python
-      - -usr/share/nautilus-python
+      - usr/share/nautilus-python
       - -usr/share/nemo-python
       - -usr/share/applications
       - -usr/include/
