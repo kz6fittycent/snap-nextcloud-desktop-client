@@ -1,5 +1,5 @@
 name: nextcloud-desktop-client
-version: '3.6.6'
+adopt-info: nextcloud-desktop-client
 base: core20
 summary: Nextcloud Desktop Client
 description: |
@@ -145,6 +145,7 @@ parts:
       snapcraftctl pull
       patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
       patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/folder_path.diff"
+      snapcraftctl set-version "$(git describe --tags | sed 's/^v//' | cut -d "-" -f1)"
     stage:
       - -usr/share/caja-python
       - -usr/share/nautilus-python
@@ -183,5 +184,4 @@ parts:
   homeishome-launch:
     plugin: nil
     stage-snaps:
-      - homeishome-launch        
-    
+      - homeishome-launch
