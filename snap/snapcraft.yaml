@@ -38,12 +38,7 @@ plugs:
     default-provider: gtk-common-themes:sounds-themes
 
 apps:
-#Attempting to fix /home/user permission issues - not likely to work
-  homeishome-launch:
-    plugin: nil
-    stage-snaps:
-      - homeishome-launch  
-      
+    
   nextcloudcmd:
     adapter: full
     command: usr/bin/nextcloudcmd
@@ -183,4 +178,10 @@ parts:
       - qtwayland5
     after:
       - desktop-qt5
+      
+#Attempting to fix /home/user permission issues - not likely to work
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch        
     
