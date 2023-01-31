@@ -38,6 +38,12 @@ plugs:
     default-provider: gtk-common-themes:sounds-themes
 
 apps:
+#Attempting to fix /home/user permission issues - not likely to work
+  homeishome-launch:
+    plugin: nil
+    stage-snaps:
+      - homeishome-launch  
+      
   nextcloudcmd:
     adapter: full
     command: usr/bin/nextcloudcmd
@@ -51,6 +57,7 @@ apps:
     extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
+      - bin/homeishome-launch  
     command: usr/bin/nextcloud
     environment:
       NO_AT_BRIDGE: 1
