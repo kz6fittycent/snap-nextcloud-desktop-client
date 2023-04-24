@@ -115,7 +115,7 @@ parts:
       - -DWITH_CRASHREPORTER=OFF
     source: https://github.com/nextcloud/desktop
     source-type: git
-    source-branch: 3.8
+    source-branch: stable-3.8
     override-pull: |
       snapcraftctl pull
       patch -p1 < "${SNAPCRAFT_PROJECT_DIR}/patches/disable_debug_logging.diff"
