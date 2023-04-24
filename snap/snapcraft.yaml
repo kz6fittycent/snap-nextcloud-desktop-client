@@ -42,7 +42,7 @@ apps:
 
   nextcloud:
     adapter: full
-    extensions: [gnome-3-38]
+#    extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
       - bin/homeishome-launch  
@@ -51,22 +51,6 @@ apps:
       NO_AT_BRIDGE: 1
       DISABLE_WAYLAND: 1
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
-
-    plugs:
-      - browser-support
-      - desktop
-      - desktop-legacy
-      - gsettings
-      - home
-      - mount-observe
-      - network
-      - network-bind
-      - network-manager-observe
-      - opengl
-      - password-manager-service
-      - unity7
-      - wayland
-      - removable-media
 
 build-packages:
   - libcloudproviders-dev
