@@ -152,6 +152,7 @@ parts:
       - qt5-qmltooling-plugins
       - qttranslations5-l10n
       - qtwayland5
+      - dbus
     after:
       - desktop-qt5
       
