@@ -17,7 +17,7 @@ architectures:
   - build-on: amd64
 
 grade: stable
-confinement: strict
+confinement: classic
 compression: lzo
 
 icon: snap/gui/nextcloud.png
@@ -39,10 +39,6 @@ apps:
   nextcloudcmd:
     adapter: full
     command: usr/bin/nextcloudcmd
-    plugs:
-      - home
-      - network
-      - network-bind
 
   nextcloud:
     adapter: full
