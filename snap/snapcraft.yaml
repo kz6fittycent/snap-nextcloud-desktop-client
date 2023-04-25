@@ -17,7 +17,7 @@ architectures:
   - build-on: amd64
 
 grade: stable
-confinement: classic
+confinement: strict
 compression: lzo
 
 icon: snap/gui/nextcloud.png
@@ -39,10 +39,14 @@ apps:
   nextcloudcmd:
     adapter: full
     command: usr/bin/nextcloudcmd
+    plugs:
+      - home
+      - network
+      - network-bind
 
   nextcloud:
     adapter: full
-#    extensions: [gnome-3-38]
+    extensions: [gnome-3-38]
     command-chain:
       - bin/desktop-launch
       - bin/homeishome-launch  
@@ -51,6 +55,22 @@ apps:
       NO_AT_BRIDGE: 1
       DISABLE_WAYLAND: 1
     autostart: com.nextcloud.desktopclient.nextcloud.desktop
+
+    plugs:
+      - browser-support
+      - desktop
+      - desktop-legacy
+      - gsettings
+      - home
+      - mount-observe
+      - network
+      - network-bind
+      - network-manager-observe
+      - opengl
+      - password-manager-service
+      - unity7
+      - wayland
+      - removable-media
 
 build-packages:
   - libcloudproviders-dev
@@ -152,7 +172,6 @@ parts:
       - qt5-qmltooling-plugins
       - qttranslations5-l10n
       - qtwayland5
-      - libdbus-1-3
     after:
       - desktop-qt5
       
